@@ -1,6 +1,9 @@
 from __future__ import annotations
+
 from datetime import datetime
+
 from fastapi import HTTPException
+
 from app.db import db, row_to_dict
 
 
@@ -17,10 +20,20 @@ def current_shift(conn):
     return row
 
 
-def audit(conn, kind: str, ref_id: int | None, action: str, note: str = "") -> None:
+def audit(
+    conn,
+    kind: str,
+    ref_id: int | None,
+    action: str,
+    note: str = "",
+    event_id: str | None = None,
+) -> None:
     conn.execute(
-        "INSERT INTO audit_events(kind, ref_id, action, created_at, note) VALUES (?, ?, ?, ?, ?)",
-        (kind, ref_id, action, now_str(), note),
+        """
+        INSERT INTO audit_events(kind, ref_id, action, created_at, note, event_id)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (kind, ref_id, action, now_str(), note, event_id),
     )
 
 

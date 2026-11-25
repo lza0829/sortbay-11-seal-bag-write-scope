@@ -8,15 +8,17 @@ import Bags from './pages/Bags'
 import Diverts from './pages/Diverts'
 import Shifts from './pages/Shifts'
 import Settings from './pages/Settings'
+import Audit from './pages/Audit'
 
 const links = [
-  ['/', '总览'],
-  ['/扫描', '过机扫描'],
-  ['/口门', '口门'],
-  ['/路由表', '路由表'],
+  ['/', '总览对账'],
+  ['/扫描', '扫描册 · 过机扫描'],
+  ['/口门', '口门在口 · 口门'],
+  ['/路由表', '改路由 · 路由表'],
   ['/回流', '错分回流'],
-  ['/封袋', '封袋'],
-  ['/班次', '班次对账'],
+  ['/封袋', '封袋确认 · 封袋'],
+  ['/班次', '班次对账 · 封班'],
+  ['/审计', '审计重放'],
   ['/设置', '设置'],
 ]
 
@@ -45,6 +47,7 @@ export default function App() {
           <Route path="/回流" element={<Diverts />} />
           <Route path="/封袋" element={<Bags />} />
           <Route path="/班次" element={<Shifts />} />
+          <Route path="/审计" element={<Audit />} />
           <Route path="/设置" element={<Settings />} />
         </Routes>
       </main>

@@ -44,6 +44,24 @@ def reconcile(shift_id: int | None = None):
             "SELECT COUNT(*) c FROM scans WHERE shift_id=? AND status IN ('待路由','错分回流')",
             (sid,),
         ).fetchone()["c"]
+        sealed_items = conn.execute(
+            "SELECT COUNT(*) c FROM scans WHERE shift_id=? AND status='已封袋'",
+            (sid,),
+        ).fetchone()["c"]
+        frozen_count = conn.execute(
+            "SELECT COALESCE(SUM(sealed_count), 0) c FROM bags WHERE shift_id=? AND status='已封袋'",
+            (sid,),
+        ).fetchone()["c"]
+        drift_rows = conn.execute(
+            """
+            SELECT b.id, b.code, b.sealed_count,
+                   (SELECT COUNT(*) FROM scans s WHERE s.bag_id=b.id) AS current_count
+              FROM bags b
+             WHERE b.shift_id=? AND b.status='已封袋'
+            """,
+            (sid,),
+        ).fetchall()
+        drift = [dict(r) for r in drift_rows if int(r["sealed_count"] or 0) != int(r["current_count"] or 0)]
         return {
             "班次": row_to_dict(shift),
             "扫描总数": scan_n,
@@ -52,6 +70,10 @@ def reconcile(shift_id: int | None = None):
             "已封袋数": sealed_bag,
             "回流批次数": divert_n,
             "未清件数": pending,
+            "已封袋件数": sealed_items,
+            "封口冻结件数": int(frozen_count or 0),
+            "封口件数一致": int(frozen_count or 0) == sealed_items and not drift,
+            "拧花袋": drift,
         }
 
 

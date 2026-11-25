@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { api } from '../api'
+import { useReloadOnChange } from '../hooks/useReloadOnChange'
 
 export default function Shifts() {
   const [rows, setRows] = useState([])
@@ -10,6 +11,7 @@ export default function Shifts() {
     setRec(await api('/班次/对账'))
   }
   useEffect(() => { load().catch((e) => setErr(e.message)) }, [])
+  useReloadOnChange(load)
   const seal = async (id) => {
     try { await api(`/班次/${id}/封班`, { method: 'POST' }); load() }
     catch (e) { setErr(e.message) }
@@ -23,6 +25,8 @@ export default function Shifts() {
           <div className="stat"><div className="n">{rec.扫描总数}</div><div className="l">扫描总数</div></div>
           <div className="stat"><div className="n">{rec.已路由及以上}</div><div className="l">已路由及以上</div></div>
           <div className="stat"><div className="n">{rec.已封袋数}</div><div className="l">已封袋数</div></div>
+          <div className="stat"><div className="n">{rec.封口冻结件数 ?? '-'}</div><div className="l">封口冻结件数</div></div>
+          <div className="stat"><div className={`n ${rec.封口件数一致 === false ? 'bad' : 'good'}`}>{rec.拧花袋?.length ?? 0}</div><div className="l">封口拧花袋</div></div>
           <div className="stat"><div className="n">{rec.未清件数}</div><div className="l">未清件数</div></div>
         </div>
       )}

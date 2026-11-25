@@ -1,8 +1,9 @@
 from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
-from app.db import db, rows_to_list, row_to_dict
+from app.db import db, row_to_dict
 from app.services.common import audit
+from app.services.projections import chute_rows
 
 router = APIRouter(tags=["口门"])
 
@@ -15,11 +16,12 @@ class ChuteIn(BaseModel):
 
 
 @router.get("/口门")
+@router.get("/口门在口")
+@router.get("/口门/在口")
+@router.get("/chutes")
 def list_chutes():
     with db() as conn:
-        return rows_to_list(conn.execute(
-            "SELECT c.*, l.name AS 分拣线名 FROM chutes c JOIN lines l ON l.id=c.line_id ORDER BY c.code"
-        ).fetchall())
+        return chute_rows(conn)
 
 
 @router.post("/口门")
